@@ -54,6 +54,9 @@
 \DeclareMathOperator\E{E} 
 \DeclareMathOperator\NDFT{DFT} 
 \DeclareMathOperator\IDFT{IDFT} 
+\DeclareMathOperator\ROC{ROC}
+\DeclareMathOperator\RE{Re}
+\DeclareMathOperator\IM{Im}
 
 
 %colorCodes
@@ -105,6 +108,11 @@
 \newcommand{\ex}[1]{\textcolor{cBlue}{#1}}
 \newcommand{\pdif}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\pdiff}[2]{\frac{\partial^2 #1}{\partial #2 ^2}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\renewcommand{\exp}[1]{e^{#1}}
 
 \newenvironment{cmatrix}{\left(\begin{matrix}}{\end{matrix}\right)}
 
@@ -132,6 +140,7 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
 }
 
 \newenvironment{case}{
+	\renewcommand*{\arraystretch}{1.2}
   \left\{ \begin{array}{ll}
 }{
   \end{array} \right.
@@ -152,8 +161,8 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
 \newcommand{\ncr}[2]{\binom{#1}{#2}}
 
 \renewenvironment{description}{\color{cGray}}{}
-\newenvironment{definition}{\color{cGray}}{} 
-\newcommand{\cdef}[1]{\begin{definition}#1\end{definition}}
+\newenvironment{define}{\color{cGray}}{} 
+\newcommand{\cdef}[1]{\begin{define}#1\end{define}}
 
 
 \newcommand{\vLaplace}[1][]{\mbox{\setlength{\unitlength}{0.1em}%
@@ -199,6 +208,17 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
   \renewcommand{\arraystretch}{1.5}
 }
 
+\newenvironment{stabular}[1] {
+\renewcommand{\arraystretch}{1}
+
+\begin{tabular}{#1}
+}  
+{
+\end{tabular}
+
+\renewcommand{\arraystretch}{1.5}
+}
+
 \newenvironment{lmtabular}[1] {
 \renewcommand{\arraystretch}{2}
 
@@ -211,7 +231,7 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
 }
 
 \newenvironment{dtabular} {
-  \begin{tabular}{>{\begin{definition}}l<{\end{definition}} >{\begin{definition}}l<{\end{definition}}}
+  \begin{tabular}{>{\begin{define}}l<{\end{define}} >{\begin{define}}l<{\end{define}}}
 }  
 {
   \end{tabular}
@@ -219,7 +239,7 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
 
 \newenvironment{ddtabular} {
   \begin{center}
-  \begin{tabular}{>{\begin{definition}}l<{\end{definition}} >{\begin{definition}}l<{\end{definition}} | >{\begin{definition}}l<{\end{definition}} >{\begin{definition}}l<{\end{definition}}}
+  \begin{tabular}{>{\begin{define}}l<{\end{define}} >{\begin{define}}l<{\end{define}} | >{\begin{define}}l<{\end{define}} >{\begin{define}}l<{\end{define}}}
 }  
 {
   \end{tabular}
@@ -246,11 +266,23 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
 \tikzset{%
   block/.style    = {draw, thick, rectangle, minimum height = 2.5em,
     minimum width = 3em},
-  sum/.style      = {draw, circle, node distance = 1.5cm}, % Adder
+  sum/.style      = {draw, circle}, % Adder
   input/.style    = {coordinate}, % Input
   output/.style   = {coordinate}, % Output
-  gain/.style     = {draw, thick, isosceles triangle, minimum height = 2em, isosceles triangle apex angle=60},
-  rgain/.style    = {draw, thick, isosceles triangle, minimum height = 2em, isosceles triangle apex angle=60}
+  point/.style    = {coordinate}, % Output
+  gain/.style     = {draw, thick, isosceles triangle, minimum height = 1em, isosceles triangle apex angle=60},
+  rgain/.style    = {draw, thick, isosceles triangle, minimum height = 1em, isosceles triangle apex angle=60},
+  sampler/.style = {minimum height = 0.6cm, minimum width = 0.6cm, path picture={
+	  \draw [fill=black] (path picture bounding box.east) + (-0.05cm,0cm) circle (0.05cm);
+	  \draw (path picture bounding box.east) + (-0.05cm,0cm) -- ++(155:0.55cm);
+	  \draw [thick](path picture bounding box.west) + (0cm,-0.04cm) -- ++(0cm, 0.08cm);
+	}},
+	impulsetrain/.style = {draw, thick, rectangle, minimum height=2.5em, minimum width=3.5em, path picture = {
+		\draw [line width=0.018cm] (path picture bounding box.west) + (0.75em,-0.7em) -- ++ (2.75em,-0.7em);
+		\draw [line width=0.018cm, ->, >=latex] (path picture bounding box.west) + (1.25em,-0.7em) -- ++(1.25em,0.7em);
+		\draw [line width=0.018cm, ->, >=latex] (path picture bounding box.west) + (1.75em,-0.7em) -- ++(1.75em,0.7em);
+		\draw [line width=0.018cm, ->, >=latex] (path picture bounding box.west) + (2.25em,-0.7em) -- ++(2.25em,0.7em);
+	}}
 }
 
 
@@ -331,4 +363,6 @@ every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west}]
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
-\newtheorem{theorem}{Theorem}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+

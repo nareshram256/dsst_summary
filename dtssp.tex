@@ -11,7 +11,365 @@
 	
 \section{Signals and Systems}
 
+\subsection{Types of Signals}
+{\renewcommand*{\arraystretch}{1.2}
+\begin{tabular}{cl}
+	 $\ell_\RR^1(\ZZ)$ & Set of all discrete-time real-valued absolutely summable signals \\
+	 $\ell_\CC^2(\ZZ)$ & Set of all discrete-time complex-valued square summable signals \\
+	 $\ell_\RR^\infty(\ZZ)$ & Set of all discrete-time real-valued bounded signals \\
+	 $L_\RR^1(\RR)$ & Set of all continuous-time real-valued absolutely summable signals\\
+	 $L_\CC^1(\RR)$ & Set of all continuous-time complex-valued square summable signals\\
+	 $L_\CC^\infty(\RR)$ & Set of all continuous-time complex-valued bounded signals\\
+\end{tabular}
+}
 
+$$\ell_\RR^1 \subset \ell_\RR^2 \subset \ell_\RR^\infty \qquad \ell_\CC^1 \subset \ell_\CC^2 \subset \ell_\CC^\infty$$
+
+\begin{mtabular}{lll}
+	type of signal & continuous-time & discrete-time \\ \midrule
+	absolutely summable & $\fmm \infint \abs{f(x)} dx < \infty$ & $\fmm \infsum{k} \abs{f[k]} < \infty$ \\
+	square summable & $\fmm \infint \abs{f(x)}^2 dx < \infty$ & $\fmm \infsum{k} \abs{f[k]}^2 < \infty$ \\
+	bounded: & $\fmm \abs{f(x)} < b, \; \forall x \in \RR$ & $\fmm \abs{f[k]} < b, \; \forall k \in \ZZ$ \\
+\end{mtabular}
+
+\subsection{LTI System}
+
+\begin{tabular}{cc}
+	\begin{tabular}{c}
+		\begin{tikzpicture}[node distance=1.6cm]
+			\node[input](u) {};
+			\node[block, right of=u](h) {$h[.]$};
+			\node[output, right of=h](y) {};
+			
+			\draw [->] (u) -- node[pos=0, above right] {$u[.]$} (h);
+			\draw [->] (h) -- node[pos=1, above left]  {$y[.]$} (y);
+		\end{tikzpicture}
+	\end{tabular} &
+	\begin{mtabular}{l}
+		$\fmm y[.] = u[.] \ast h[.] = \sum_{k \in \ZZ} u[k]h[.-k]$ \\
+		$\fmm y(t) = u(t) \ast h(t) = \infint u(\tau) h(t - \tau) d\tau$
+	\end{mtabular}
+\end{tabular}
+
+\begin{theorem}
+	An LTI system is \textbf{BIBO-stable}, if and only if it's impulse response is a stable signal (i.e. absolutely summable or integrable)
+\end{theorem}
+
+\begin{stabular}{ccc}
+	$f$ & $g$ & $f \ast g$ \\ \midrule
+	right-sided & right-sided & right-sided \\
+	causal & causal & causal \\
+	anything & finite duration & well defined \\
+	\textbf{bounded} & \textbf{absolutely summable} & \textbf{bounded} \\
+	absolutely summable & absolutely summable & absolutely summable \\
+	square summable & absolutely summable & square summable \\
+	square summable & square summable & bounded \\
+\end{stabular}
+
+\subsection{canonical forms}
+
+$$H(z) = \frac{a_0 + a_1 z^{-1} + a_2 z^{-2} + \cdots + a_n z^{-n}}{1 + b_1 z^{-1} + b_2 z^{-2} + \cdots + b_n z^{-n}} = \frac{a_0 z^n + a_1 z^{n-1} + \cdots + a_n}{z^n + b_1 z^{n-1} + \cdots + b_n}$$
+
+\begin{tabular}{cc}
+	\textbf{controllable canonical form} & \textbf{observable canonical form} \\
+	\begin{tikzpicture}[scale=0.7, transform shape, node distance=1.3cm]
+		\node [input] (in) {};
+		\node [sum, right of=in] (s11) {$+$};
+		\node [point, below of=s11] (d11) {};
+		\node [sum, below of=d11] (s12) {$+$};
+		\node [point, below of=s12] (d12) {};
+		\node [sum, below of=d12] (s13) {$+$};
+		\node [block, right of=s12] (b1) {$-b_1$};
+		\node [block, right of=s13] (b2) {$-b_2$};
+		\node [point, right of=b1] (x1) {};
+		\node [block, above of=x1] (z1) {$z^{-1}$};
+		\node [point, above of=z1] (x0) {};
+		\node [point, right of=b2] (x2) {};
+		\node [block, above of=x2] (z2) {$z^{-1}$};
+		\node [block, right of=x0] (a0) {$a_0$}; 
+		\node [block, right of=x1] (a1) {$a_1$}; 
+		\node [block, right of=x2] (a2) {$a_2$}; 
+		\node [sum, right of=a0] (s21) {$+$}; 
+		\node [sum, right of=a1] (s22) {$+$}; 
+		\node [sum, right of=a2] (s23) {$+$};
+		\node [output, right of=s21] (out) {};
+		
+		\draw [->] (in) -- (s11);
+		\draw [->] (s11) -- (x0) (x0) -- (z1);
+		\draw [->] (z1) -- (x1) (x1) -- (z2);
+		\draw [->] (z2) -- (x2) (x2) -- (b2);
+		\draw [->] (x1) -- (b1);
+		\draw [->] (b1) -- (s12);
+		\draw [->] (b2) -- (s13);
+		\draw [->] (s13) -- (s12);
+		\draw [->] (s12) -- (s11);
+		\draw [->] (x0) -- (a0);
+		\draw [->] (x1) -- (a1);
+		\draw [->] (x2) -- (a2);
+		\draw [->] (a0) -- (s21);
+		\draw [->] (a1) -- (s22);
+		\draw [->] (a2) -- (s23);
+		\draw [->] (s23) -- (s22);
+		\draw [->] (s22) -- (s21);
+		\draw [->] (s21) -- (out);
+	\end{tikzpicture} &
+	
+	\begin{tikzpicture}[scale=0.7, transform shape, node distance=1.3cm]
+	\node [input] (in) {};
+	\node [point, right of=in] (p0) {};
+	\node [point, below of=p0] (d0) {};
+	\node [point, below of=d0] (p1) {};
+	\node [point, below of=p1] (d1) {};
+	\node [point, below of=d1] (p2) {};
+	\node [block, right of=p0] (a0) {$a_0$};
+	\node [block, right of=p1] (a1) {$a_1$};
+	\node [block, right of=p2] (a2) {$a_2$};
+	\node [sum, right of=a0] (s0) {$+$};
+	\node [sum, right of=a1] (s1) {$+$};
+	\node [sum, right of=a2] (s2) {$+$};
+	\node [block, below of=s0] (z0) {$z^{-1}$};
+	\node [block, below of=s1] (z1) {$z^{-1}$};
+	\node [point, right of=s0] (b0) {};
+	\node [block, right of=s1] (b1) {$b_1$};
+	\node [block, right of=s2] (b2) {$b_2$};
+	\node [point, right of=b0] (q0) {};
+	\node [point, right of=b1] (q1) {};
+	\node [point, right of=b2] (q2) {};
+	\node [output, right of=q0] (out) {};
+	
+	\draw [->] (in) -- (p0) -- (p1) -- (p2) -- (a2);
+	\draw [->] (p1) -- (a1);
+	\draw [->] (p0) -- (a0);
+	\draw [->] (a0) -- (s0);
+	\draw [->] (a1) -- (s1);
+	\draw [->] (a2) -- (s2);
+	\draw [->] (s2) -- (z1);
+	\draw [->] (z1) -- (s1);
+	\draw [->] (s1) -- (z0);
+	\draw [->] (z0) -- (s0);
+	\draw [->] (b2) -- (s2);
+	\draw [->] (b1) -- (s1);
+	\draw [->] (s0) -- (out);
+	\draw (b1) -- (q1) -- (q0);
+	\draw (b2) -- (q2) -- (q1);u
+	
+	\end{tikzpicture}
+\end{tabular}
+
+$$x[k] \in \RR^n, \; A \in \RR^{n \times n}, \; B \in \RR^{n \times 1}, \; C \in \RR^{1 \times n}, \; D \in \RR$$
+$$A = \begin{cmat}{ccccc}
+-b_1 & -b_2 & -b_3 & \cdots & -b_n \\
+1    & 0    & 0    & \cdots & 0    \\
+0    & 1    & 0    & \cdots & 0    \\
+\vdots & \vdots & \vdots & & \vdots \\
+0    & 0    & \cdots & 1 & 0 \\
+\end{cmat}, \quad B = \begin{cmat}{c}1 \\ 0 \\ \vdots \\ 0\end{cmat}$$
+$$C = \begin{cmat}{ccc}a_1 - a_0 b_1 & \cdots & a_n - a_0 b_n\end{cmat}, \quad D =a_0$$
+
+\subsection{Maison's Gain Formula}
+
+$$\frac{Y(z)}{U(z)} = \frac{\sum_{p \in P} T_p(z) \Delta_p(z) }{\Delta(z)}$$
+
+$P$ is the set of all forward paths from node $u$ to node $y$. $T_p(z)$ is the transfer function of the forward path $p$. $\Delta_p(z)$ is the network determinant of that parto of the block diagram that is not touched by the forward path $p$. $\Delta(z)$ is the network determinant.
+
+$$\Delta(z) = 1 - \sum_{s \in S_1)}  + \sum_{(s_1, s_2) \in S_2} T_{s_1} T_{s_2} - \sum_{(s_1,s_2,s_3) \in S_3} T_{s_1} T_{s_2} T_{s_3} \pm \cdots$$
+
+$T_s(z)$ denotes the transfer function of a simple loop $s$. $S_1$ is the set of all simple loops. $S_2$ is the set of all unordered pairs $(s_1,s_2)$ of simple loops $s_1, s_2 \in S_1$ that do not touch. $S_3$ is defined as three not touching loops and so on...
+
+\subsection{$z$-Transform}
+
+\begin{definition}
+	The z-transform of a real or complex signal $f[.]$ is the funciton
+	$$\ROC(f) \rightarrow \CC : z \mapsto F(z) := \infsum{k}f[k] z^{-k}$$
+	with $\ROC(f) := \left\{ z \in \CC: r_1 < \abs{z} < r_2 \right\}$
+	$$r_2 := \left( \limsup_{\ell \rightarrow \infty} \abs{f([-\ell])}^{1/\ell}\right)^{-1} \quad r_1 := \limsup_{k \rightarrow \infty} \abs{f[k]}^{1/k}$$	
+\end{definition}
+
+\begin{theorem}
+	Let $f[.]$ be a real or complex discrete-time signal with rational z-transform. Then $f[.]$ is \textbf{stable}  $\iff$ $\ROC(f)$ contains the unit circle.
+	
+	If $f[.]$ is right-sided, then $f[.]$ is \textbf{stable} $\iff$ all poles of $F(z)$ are strictly inside the unit circle.
+\end{theorem}
+
+\begin{tabular}{ll}
+	\textbf{Addition} & $\ROC(f + g) \subseteq \ROC(f) \cap \ROC{g}$ \\
+	\textbf{Multiplication} & $H(z) := F(z) G(z) \longrightarrow \ROC(h) \subseteq \ROC(f) \cap \ROC(g)$ \\
+	\textbf{Scalar multipl.} & $\ROC(af) = \ROC(a)$ \\
+	\textbf{Time shift} & $H(z) := z^m F(z) \longrightarrow \ROC(h) =\ROC(f)$ \\
+	\textbf{Time reversal} & $h[k] := f[-k] \longrightarrow \ROC(h) = \left\{ z \in \CC: 1/r_2 < \abs{z} < 1/r_1\right\}$
+\end{tabular}
+
+\begin{center}
+	\begin{tabular}{ccl}
+		$f[k]$ & $F(z)$ & \\ \midrule
+		$f[k]$ & $\fmm F(z) = \infsum{k} f[k] e^{-k}$ & definition \\
+		$\alpha f[k] + \beta g[k]$ & $\alpha F(z) + \beta G(z)$ & linearity \\
+		$f[k-m]$ & $\fmm z^m \cdot F(z)$ & time delay \\
+		$f[k] \ast g[k]$ & $F(z) \cdot G(z)$ & convolution - multiplicity \\
+		
+	\end{tabular}
+\end{center}
+
+\subsection{Inverse $z$-Transform}
+
+\begin{mtabular}{ccc}
+	$F(z)$ & $\ROC(f)$ & $f[.]$ \\ \toprule
+	\multirow{2}{*}{$\fmm \frac{z}{z-p}$} & $\abs{z} > \abs{p}$ & $f[k] = \begin{case}0 & k < 0 \\ p^k & k \geq 0\end{case}$ \\ 
+	& $\abs{z} < \abs{p}$ & $f[k] = \begin{case}-p^k & k < 0 \\ 0 & k \geq 0\end{case}$ \\ \midrule
+	\multirow{2}{*}{$\fmm \frac{A z}{z - p} + \frac{\overline{A} z}{z - \overline{p}}$} &  $\abs{z} > \abs{p}$ & $f[k] = \begin{case}0 & k < 0 \\ 2 \abs{A} \abs{p}^k \cos{\Omega k + \varphi} & k \geq 0\end{case}$\\
+	& $\abs{z} < \abs{p}$ & $f[k] = \begin{case}-2 \abs{A} \abs{p}^k \cos{\Omega k + \varphi} & k < 0 \\ 0 & k \geq 0 \\\end{case}$\\
+	& & where $A = \abs{A} \cdot e^{i \varphi}$ and $p = \abs{p} \cdot e^{i \Omega}$
+\end{mtabular}
+
+\subsection{Spectrum of Discrete-time Signals}
+
+\begin{theorem}
+	The spectrum of a discrete-time signal is the $z$-transform on the unit circle.
+	
+	$$F(e^{i \Omega}) := \left.F(z) \right|_{z = e^{i \Omega}}$$
+\end{theorem}
+
+\begin{theorem}
+	For a stable real-valued discrete-time signal $f[.] \in \RR \, \forall \, k \in \ZZ$:
+	$$F(e^{-i\omega}) = \overline{F(e^{i\Omega})}$$
+\end{theorem}
+
+$$F(z) = c \cdot \frac{\prod_{k = 1}^{m} (z - z_k)}{\prod_{\ell = 1}^{n} (z - p_\ell)} \qquad 
+\abs{F(e^{i\Omega})} = \abs{c} \cdot \frac{\prod_{k = 1}^{m} \abs{e^{i \Omega} - z_k}}{\prod_{\ell = 1}^{n} \abs{e^{i\Omega} - p_\ell}}$$
+
+\pagebreak
+
+\section{Discrete Time $\rightleftarrows$ Continuous Time}
+
+\subsection{Laplace Transform}
+
+$$F(s) := \infint f(t) e^{-s t} \quad \ROC(f) = \left\{ s \in \CC: r_1 <\RE(s) < r_2 \right\}$$
+{\small
+\begin{tabular}{ccc}
+	signal $f$ & $z$-transform & Laplace transform \\ \toprule
+	right-sided & 
+	$\ROC(f) = \left\{z \in \CC : \abs{z} > \rho \right\}$ & 
+	$\ROC(f) = \left\{ s \in \CC: \RE(s) > r \right\}$ \\
+	left-sided & 
+	$\ROC(f) = \left\{z \in \CC : \abs{z} < \rho \right\}$ & 
+	$\ROC(f) = \left\{ s \in \CC: \RE(s) > r \right\}$ \\
+	stable & $\ROC(f)$ contains unit circle & $\ROC(f)$ contains imaginary axis \\
+\end{tabular} }
+
+\subsection{From Discrete-time to Continuous-time}
+
+\begin{center}
+	\begin{tikzpicture} [node distance = 2.5cm]
+		\node [input] (in) {};
+		\node [impulsetrain, right of=in] (it) {};
+		\node [block, right of=it] (h) {$h(t)$};
+		\node [output, right of=h] (out) {};
+		
+		\draw [->] (in) -- node[pos=0, above right] {$x[k]$} (it);
+		\draw [->] (it) -- node[pos=0.5, above] {$\tilde{x}(t)$} (h);
+		\draw [->] (h) -- node[pos=1, above left] {$y(t)$} (out);
+	\end{tikzpicture}
+\end{center}
+
+$$\tilde{x}(t) := \infsum{k} x[k] \delta(t-kT) \quad y(t) = (\tilde{x} \ast h)(t) = \infsum{k} x[k] h(t-kT)$$
+$$\tilde{X}(s) = \left.X(z)\right|_{z=e^{sT}}, \quad \tilde{X}(i \omega) = \left. F(z) \right|_{z=e^{i \omega T}}$$
+
+The spectrum $\tilde{F}(i\omega)$ of a ``continuous-time signal'' $\tilde{f}(t) := \sum_{k \in \ZZ} f[k] \delta(t-kT)$ equals the \textbf{periodic spectrum} $F(e^{i\Omega})$ of the discrete-time signal $f[.]$ with $\Omega = \omega T$
+
+\begin{center}
+	\begin{tabular}{cc}
+		\begin{tikzpicture} [scale=0.8, transform shape]
+			\draw [->] (-2.5,0) -- (2.5,0);
+			\draw [->] (0,-2) -- (0,2);
+			\draw (-2.5,2) rectangle(-2,1.5) node[pos=0.5] {$s$};
+			\draw (0,0) node [below left] {0};
+			\draw [thick, cRed] (0,-2) -- (0,1.8);
+			\draw [thick, cRed, fill=cRed] (0,0) circle (0.05 ); 
+			\draw [thick, cGreen] (1,-2) -- (1,1.8);
+			\draw [thick, cGreen, fill=cGreen] (1,0) circle (0.05 ); 
+			\draw [thick, cBlue] (-2.5,0.3) -- (2.2,0.3);
+			\draw [thick, clBlue] (-2.5,+1.5) -- (2.2,+1.5) node[black, pos=0.5, above left] {$\pi/T$};
+			\draw [thick, clBlue] (-2.5,-1.5) -- (2.2,-1.5) node[black, pos=0.5, below left] {$-\pi/T$};
+		\end{tikzpicture} &
+		\begin{tikzpicture} [scale=0.8, transform shape]
+		\draw [->] (-2.5,0) -- (2.5,0);
+		\draw [->] (0,-2) -- (0,2);
+		\draw (-2.5,2) rectangle(-2,1.5) node[pos=0.5] {$z$};
+		\draw (0,0) node [below left] {0} (1,0) node [below right] {1};
+		\draw [thick, cRed] (0,0) circle (1);
+		\draw [thick, cRed, fill=cRed] (1,0) circle (0.05 ); 
+		\draw [thick, cGreen] (0,0) circle (1.5);
+		\draw [thick, cGreen, fill=cGreen] (1.5,0) circle (0.05 ); 
+		\draw [thick, cBlue] (0,0) -- ++(30:2.5);
+		\draw [thick, clBlue] (0,0) -- (-2.5,0);
+		
+		\end{tikzpicture}
+	\end{tabular}
+\end{center}
+
+\subsection{Ideal Lowpass and the Sampling Theorem}
+
+$$H(i \omega) = \begin{case} 1 & \abs{\omega} < \omega_c \\ 0 & \abs{\omega} \geq \omega_c \end{case} \qquad h(t) = \frac{\sin(\omega_c t)}{\pi t} = \frac{\omega_c}{\pi} \sinc\left(\frac{\omega_c t}{\pi}\right)$$
+
+\begin{center}
+	\begin{tikzpicture}[node distance = 2.5cm]
+		\node [input] (in) {};
+		\node [impulsetrain, right of=in] (it) {} ;
+		\node [block, right of=it, align=center] (lp) {ideal \\ lowpass};
+		\node [sampler, right of=lp] (sampler) {};
+		\node [output, right of=sampler] (out) {};
+		
+		\draw [->] (in) -- node[pos = 0, above right] {$x[.]$} (it);
+		\draw [->] (it) -- node[pos = 0.5, above] {$\tilde{x}(.)$} (lp);
+		\draw (lp) -- node[pos = 0.5, above] {$y(.)$} (sampler);
+		\draw [->] (sampler) -- node[pos=1, above left] {$y_s[.] = x[.]$} (out);
+	\end{tikzpicture}
+\end{center}
+
+The system above is completely transparent and acts like a discrete-time filter with impulse response $\delta[.]$
+
+\begin{theorem}[Nyquist-Shannon Sampling Theorem]
+	Let $y(.)$ be a signal with spectrum $Y(i\omega)$ satisfying
+	$$Y(i\omega) = 0 \, \forall \, \abs{\omega} \geq \pi/T \quad \text{or} \quad Y(i 2\pi f) = 0 \, \forall \, \abs{f} \geq f_s/2,$$ 
+	Twhere $\omega = 2 \pi f$ and $\boldsymbol{f_s := 1/T}$. Then, $y(.)$ can be recovered from the discrete-time signal $y_s[k] =T y(kT)$ by:
+	$$Y(i\omega) = Y_s(e^{i\omega T}) \, \forall \, \abs{\omega} < \pi/T, \quad y(t) = \sum_{k \in \ZZ} y(kT) \sinc \left(\frac{t - kT}{T}\right).$$ 
+	The spectra of $y(.)$ and $y_s[.]$ are related by:
+	$$Y_s\left(\exp{i \omega T}\right) =\sum_{n \in \ZZ} Y \left(i \left(\omega + \frac{2\pi n}{T}\right)\right) \qquad Y_s\left(\exp{i 2 \pi f /f_s}\right) =\sum_{n \in \ZZ} Y \left(i 2 \pi (f + n f_s)\right)$$
+\end{theorem}
+
+Now, we define the digital frequency and the normalized frequency as following:
+
+$$\Omega = \omega T = 2 \pi \frac{f}{f_s}, \quad \Omega \in [-\pi, \pi] \text{ or } [0, 2\pi]$$
+$$\frac{\omega}{2\pi} = f_{\text{norm}} = \frac{f}{f_s}, \quad f_{\text{norm}} \in \left[-\frac{1}{2}, \frac{1}{2}\right] \text{ or } [0, 1]$$
+
+
+The spectrum $Y_s(\exp{i\Omega})$ or $\tilde{Y}_s(i\omega)$ of a sampled signal is the sum of copies $Y(i\omega)$ that are shifted by $n \cdot 2\pi/T \, \forall \, n \in \ZZ$.
+
+\begin{center}
+	\begin{tabular}{cc}
+		\begin{tikzpicture}[scale=0.8, transform shape]
+			\draw [->] (-3.5,0) -- (3.5,0) node[above] {$f$};
+			\draw [->] (0,0) -- (0,2) node [right] {$Y(i\omega)$};
+			\foreach \x in {-3,-2,-1,0,1,2,3} {\draw (\x,-0.08) -- (\x, 0.08);}
+			\draw (0,0) node[below] {0} (-2,0) node[below] {$-f_s$} (2,0) node[below] {$f_s$};
+			\draw [thick, cRed] (-3.5,0) -- (-1.5,0) -- (0,1.5) -- (1.5,0) -- (3.3,0);
+		\end{tikzpicture} &
+		
+		\begin{tikzpicture}[scale=0.8, transform shape]
+		\draw [->] (-3.5,0) -- (3.5,0) node[above] {$f_{\text{norm}}$};
+		\draw [->] (0,0) -- (0,2) node [right] {$Y_s(\exp{i\Omega})$};
+		\foreach \x in {-3,-2,-1,0,1,2,3} {\draw (\x,-0.08) -- (\x, 0.08);}
+		\draw (0,0) node[below] {0} (-2,0) node[below] {$-f_s$} (2,0) node[below] {$f_s$};
+		\draw [thick, cRed] (-3.5,1) -- (-2.5,1) -- (-2,1.5) -- (-1.5,1) -- (-0.5,1) -- (0,1.5) -- (0.5,1) -- (1.5,1) -- (2,1.5) -- (2.5,1) -- (3,1);
+		\draw [cRed, dotted] (-1.5,0) -- (0,1.5) -- (1.5,0);
+		\draw [cRed, dotted] (-3.5,0) -- (-2,1.5) -- (-0.5,0);
+		\draw [cRed, dotted] (3,0.5) -- (2,1.5) -- (0.5,0);
+		\end{tikzpicture}
+	\end{tabular}
+\end{center}
+
+
+hu
 \end{twocolumn}
 
 \end{document}
